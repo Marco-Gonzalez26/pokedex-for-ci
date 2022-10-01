@@ -7,16 +7,30 @@ on:
     branches: [main]
     types: [opened, synchronize]
 jobs:
-
   avoid_reduncy:
     runs-on: ubuntu-18.04
     steps:
-    - name: Cancel Previous Redundant Builds
-      uses: styfle/cancel-workflow-action@0.9.1
-      with:
-        access_token: ${{ github.token }}
+      - name: Cancel Previous Redundant Builds
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
 
-  lint:
+  install:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Lint
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          node-version: 16
+      - name: Install dependencies
+        run: npm ci
+
+  lint: 
+    needs: install
     runs-on: ubuntu-18.04
     steps:
       - name: Lint
@@ -33,6 +47,7 @@ jobs:
         run: npm run eslint --no-audit --no-fund --no-optional
 
   build:
+    needs: install
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +62,7 @@ jobs:
       - name: Build
         run: npm run build
       - uses: actions/upload-artifact@v2
-        with: 
+        with:
           name: dist
           path: dist
 
@@ -55,7 +70,6 @@ jobs:
     needs: [lint, build]
     runs-on: ubuntu-18.04
     steps:
-
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -66,7 +80,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - uses: actions/download-artifact@v2
-        with: 
+        with:
           name: dist
           path: dist
       - name: Test
@@ -86,7 +100,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - uses: actions/download-artifact@v2
-        with: 
+        with:
           name: dist
           path: dist
       - name: E2E Test
@@ -95,9 +109,9 @@ jobs:
           start: npm run start-test
           command: npm run test:e2e
           wait-on: http://localhost:5000
-          
+
   deploy:
-    needs: [test, e2e]     
+    needs: [test, e2e]
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
