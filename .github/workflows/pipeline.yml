@@ -15,11 +15,12 @@ jobs:
       uses: styfle/cancel-workflow-action@0.9.1
       with:
         access_token: ${{ github.token }}
+
   lint:
     runs-on: ubuntu-18.04
     steps:
       - name: Lint
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v3
@@ -90,6 +91,7 @@ jobs:
           start: npm run start-test
           command: npm run test:e2e
           wait-on: http://localhost:5000
+          
   deploy:
     needs: [test, e2e]     
     runs-on: ubuntu-18.04
