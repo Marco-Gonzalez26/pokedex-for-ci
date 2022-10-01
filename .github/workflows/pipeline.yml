@@ -1,5 +1,4 @@
 name: Deployment Pipeline
-
 on:
   push:
     branches:
@@ -12,7 +11,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - name: Cancel Previous Redundant Builds
-      - uses: styfle/cancel-workflow-action
+        uses: styfle/cancel-workflow-action
         with:
           access_token: ${{ github.token }}
       - uses: actions/checkout@v3
@@ -42,4 +41,3 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ID }}
           vercel-project-id: ${{ secrets.PROJECT_ID }}
-          working-directory: ./
